@@ -18,7 +18,6 @@ idea {
     }
 }
 
-
 allprojects {
     group = "ru.otus"
 
