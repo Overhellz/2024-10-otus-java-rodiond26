@@ -2,18 +2,19 @@ package ru.otus.homework;
 
 import java.util.Objects;
 
-@SuppressWarnings({"java:S1135"}) // при выполнении ДЗ эту аннотацию надо удалить
-public class Customer {
+public class Customer implements Comparable<Customer> {
     private final long id;
     private String name;
     private long scores;
-
-    // todo: 1. в этом классе надо исправить ошибки
 
     public Customer(long id, String name, long scores) {
         this.id = id;
         this.name = name;
         this.scores = scores;
+    }
+
+    public static Customer copy(Customer customer) {
+        return new Customer(customer.getId(), customer.getName(), customer.getScores());
     }
 
     public long getId() {
@@ -42,22 +43,24 @@ public class Customer {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Customer customer = (Customer) o;
-
-        if (id != customer.id) return false;
-        if (scores != customer.scores) return false;
-        return Objects.equals(name, customer.name);
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        Customer customer = (Customer) other;
+        return id == customer.id;
     }
 
     @Override
     public int hashCode() {
-        int result = Long.hashCode(id);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + Long.hashCode(scores);
-        return result;
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public int compareTo(Customer other) {
+        return Long.compare(this.scores, other.getScores());
     }
 }
