@@ -14,7 +14,11 @@ public class Customer implements Comparable<Customer> {
     }
 
     public static Customer copy(Customer customer) {
-        return new Customer(customer.getId(), customer.getName(), customer.getScores());
+        return new Customer(
+                customer.getId(),
+                customer.getName(),
+                customer.getScores()
+        );
     }
 
     public long getId() {
