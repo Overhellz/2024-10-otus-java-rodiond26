@@ -2,7 +2,7 @@ package ru.otus.homework;
 
 import java.util.Objects;
 
-public class Customer implements Comparable<Customer> {
+public class Customer {
     private final long id;
     private String name;
     private long scores;
@@ -55,16 +55,11 @@ public class Customer implements Comparable<Customer> {
             return false;
         }
         Customer customer = (Customer) other;
-        return id == customer.id;
+        return this.id == customer.id;
     }
 
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    @Override
-    public int compareTo(Customer other) {
-        return Long.compare(this.scores, other.getScores());
     }
 }

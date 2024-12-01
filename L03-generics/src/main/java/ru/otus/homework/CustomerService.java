@@ -1,28 +1,28 @@
 package ru.otus.homework;
 
+import java.util.Comparator;
 import java.util.Map;
-import java.util.SortedMap;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 
 public class CustomerService {
 
-    private final SortedMap<Customer, String> customerData = new TreeMap<>();
+    private NavigableMap<Customer, String> customerData = new TreeMap<>(Comparator.comparing(Customer::getScores));
 
     public Map.Entry<Customer, String> getSmallest() {
-        return customerData.entrySet().stream()
-                .filter(entry -> entry.getKey().equals(customerData.firstEntry().getKey()))
-                .findFirst()
-                .map(optionalEntry -> Map.entry(Customer.copy(optionalEntry.getKey()), optionalEntry.getValue()))
-                .orElse(null);
+        return customerData.firstEntry() == null
+                ? null
+                : Map.entry(Customer.copy(customerData.firstEntry().getKey()), customerData.firstEntry().getValue());
     }
 
     public Map.Entry<Customer, String> getNext(Customer customer) {
-        return customerData.entrySet().stream()
-                .filter(entry -> entry.getKey() != null)
-                .filter(entry -> entry.getKey().getScores() > customer.getScores())
-                .findFirst()
-                .map(optionalEntry -> Map.entry(Customer.copy(optionalEntry.getKey()), optionalEntry.getValue()))
-                .orElse(null);
+        NavigableMap<Customer, String> newCustomerData = new TreeMap<>(Comparator.comparing(Customer::getScores));
+        newCustomerData.putAll(customerData);
+        customerData = newCustomerData;
+
+        return customerData == null
+                ? null
+                : customerData.ceilingEntry(customer);
     }
 
     public void add(Customer customer, String data) {
