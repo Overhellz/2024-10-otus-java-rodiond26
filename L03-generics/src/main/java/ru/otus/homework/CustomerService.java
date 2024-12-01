@@ -7,7 +7,8 @@ import java.util.TreeMap;
 
 public class CustomerService {
 
-    private NavigableMap<Customer, String> customerData = new TreeMap<>(Comparator.comparing(Customer::getScores));
+    private Comparator<Customer> customerComparator = Comparator.comparing(Customer::getScores);
+    private NavigableMap<Customer, String> customerData = new TreeMap<>(customerComparator);
 
     public Map.Entry<Customer, String> getSmallest() {
         return customerData.firstEntry() == null
@@ -16,21 +17,38 @@ public class CustomerService {
     }
 
     public Map.Entry<Customer, String> getNext(Customer customer) {
-        NavigableMap<Customer, String> newCustomerData = new TreeMap<>(Comparator.comparing(Customer::getScores));
-        newCustomerData.putAll(customerData);
-        customerData = newCustomerData;
+        if (!isSorted(customerData)) {
+            customerData = copy(customerData);
+        }
 
-        return customerData == null
+        return customer == null
                 ? null
                 : customerData.ceilingEntry(customer);
     }
 
     public void add(Customer customer, String data) {
-        customerData.put(customer, data);
+        customerData.put(Customer.copy(customer), data);
     }
 
     @Override
     public String toString() {
         return "CustomerService{" + "customerData=" + customerData + '}';
+    }
+
+    private boolean isSorted(NavigableMap<Customer, String> map) {
+        Customer previousKey = null;
+        for (Map.Entry<Customer, String> entry : map.entrySet()) {
+            if (previousKey != null && entry.getKey().getScores() < previousKey.getScores()) {
+                return false;
+            }
+            previousKey = entry.getKey();
+        }
+        return true;
+    }
+
+    private NavigableMap<Customer, String> copy(NavigableMap<Customer, String> map) {
+        NavigableMap<Customer, String> resultMap = new TreeMap<>(customerComparator);
+        map.forEach((key, value) -> resultMap.put(key, value));
+        return resultMap;
     }
 }
