@@ -7,8 +7,8 @@ import java.util.TreeMap;
 
 public class CustomerService {
 
-    private Comparator<Customer> customerComparator = Comparator.comparing(Customer::getScores);
-    private NavigableMap<Customer, String> customerData = new TreeMap<>(customerComparator);
+    private Comparator<Customer> customerComparator = Comparator.comparingLong(Customer::getScores);
+    private final NavigableMap<Customer, String> customerData = new TreeMap<>(customerComparator);
 
     public Map.Entry<Customer, String> getSmallest() {
         return customerData.firstEntry() == null
@@ -17,38 +17,19 @@ public class CustomerService {
     }
 
     public Map.Entry<Customer, String> getNext(Customer customer) {
-        if (!isSorted(customerData)) {
-            customerData = copy(customerData);
-        }
-
-        return customer == null
-                ? null
-                : customerData.ceilingEntry(customer);
+        return customerData.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().getScores() > customer.getScores())
+                .findFirst()
+                .map(this::copy)
+                .orElse(null);
     }
 
     public void add(Customer customer, String data) {
         customerData.put(Customer.copy(customer), data);
     }
 
-    @Override
-    public String toString() {
-        return "CustomerService{" + "customerData=" + customerData + '}';
-    }
-
-    private boolean isSorted(NavigableMap<Customer, String> map) {
-        Customer previousKey = null;
-        for (Map.Entry<Customer, String> entry : map.entrySet()) {
-            if (previousKey != null && entry.getKey().getScores() < previousKey.getScores()) {
-                return false;
-            }
-            previousKey = entry.getKey();
-        }
-        return true;
-    }
-
-    private NavigableMap<Customer, String> copy(NavigableMap<Customer, String> map) {
-        NavigableMap<Customer, String> resultMap = new TreeMap<>(customerComparator);
-        map.forEach((key, value) -> resultMap.put(key, value));
-        return resultMap;
+    private Map.Entry<Customer, String> copy(Map.Entry<Customer, String> entry) {
+        return Map.entry(Customer.copy(entry.getKey()), entry.getValue());
     }
 }
