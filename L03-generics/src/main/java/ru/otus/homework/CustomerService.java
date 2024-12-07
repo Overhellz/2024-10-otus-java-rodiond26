@@ -11,9 +11,11 @@ public class CustomerService {
     private final NavigableMap<Customer, String> customerData = new TreeMap<>(customerComparator);
 
     public Map.Entry<Customer, String> getSmallest() {
-        return customerData.firstEntry() == null
-                ? null
-                : Map.entry(Customer.copy(customerData.firstEntry().getKey()), customerData.firstEntry().getValue());
+        return customerData.entrySet()
+                .stream()
+                .findFirst()
+                .map(this::copy)
+                .orElse(null);
     }
 
     public Map.Entry<Customer, String> getNext(Customer customer) {
